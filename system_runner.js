@@ -1,13 +1,11 @@
-const canvasWidth = 540;
-const canvasHeight = 960;
-
-
+const canvasWidth = 1920
+const canvasHeight = 934;
 let mainCanvas;
 
-let textInput;
 let slider1, slider2, slider3, slider4;
 let songButton;
 
+let textInput;
 let editorMode = true;          // false when in song mode
 let songLoadStatus = "loading"; // "error", "loaded"
 let song;
@@ -29,7 +27,7 @@ function songLoaded() {
   songButton.elt.disabled = false;
   // let now = millis();
   // songEpoch = now + 5000;
-  if(debugFastRefresh && getAudioContext().state != "suspended"){
+  if(debugFastRefresh){
     switchRunMode()
   }
 }
@@ -56,7 +54,6 @@ function setup() {
   frameRate(60);
   angleMode(DEGREES);
 
-  // create text inputs
   textInput = createInput('words...');
   textInput.parent('wordsContainer');
 
@@ -114,7 +111,6 @@ function switchRunMode() {
       alert("Cannot switch mode, there was a problem loading the audio")
       return;
     }
-    textInput.elt.disabled = true;
     slider1.elt.disabled = true;
     slider2.elt.disabled = true;
     slider3.elt.disabled = true;
@@ -130,7 +126,6 @@ function switchRunMode() {
       song.stop();
       songIsPlaying = false;
     }
-    textInput.elt.disabled = false;
     slider1.elt.disabled = false;
     slider2.elt.disabled = false;
     slider3.elt.disabled = false;
@@ -141,22 +136,27 @@ function switchRunMode() {
   }
 }
 
+
+
+
 function draw() {
+  fill(204, 101, 192, 127);
+  stroke(127, 63, 120);
+
   if (editorMode) {
-    let w = textInput.value();
     let s1 = slider1.value();
     let s2 = slider2.value();
     let s3 = slider3.value();
     let s4 = slider4.value();
 
-    draw_one_frame(w, s1, s2, s3, s4, 0);
+    draw_one_frame(s1, s2, s3, s4, 0);
   }
   else {
     if(songEpoch > 0) {
       let now = millis();
       let songOffset = now - songEpoch;
       if(songOffset < 0) {
-        background(0);
+        background(30);
         let secondsRemaining = songOffset / -1000.0;
         let intSecs = int(secondsRemaining);
         if(intSecs > 0) {
@@ -184,6 +184,7 @@ function draw() {
       }
     }
     if(songIsPlaying) {
+
       let curMillis = millis();
       let timeOffset = curMillis - songEpoch;
       let curSlice = int(60 * timeOffset / 1000.0);
@@ -192,18 +193,18 @@ function draw() {
         // let row = table["rows"][curSlice].arr
         // draw_one_frame(row);
         // print(row);
-        let row = [volumes[0][curSlice], volumes[1][curSlice], volumes[2][curSlice], volumes[3][curSlice]]
         cur_words = "";
         if (curSlice < words.length) {
           cur_words = words[curSlice];
         }
         textInput.value(cur_words);
+        let row = [volumes[0][curSlice], volumes[1][curSlice], volumes[2][curSlice], volumes[3][curSlice]]
         slider1.value(row[0]);
         slider2.value(row[1]);
         slider3.value(row[2]);
         slider4.value(row[3]);
-       // draw_one_frame(cur_words, row[0], row[1], row[2], row[3], curSlice);currentTime()
-       draw_one_frame(cur_words, row[0], row[1], row[2], row[3], song.currentTime());
+
+        draw_one_frame(cur_words, row[0], row[1], row[2], row[3], curSlice, curMillis);
       }
     }
   }
